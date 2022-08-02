@@ -40,3 +40,27 @@ x
 table(x) # membuat tabel berisi frequensi dari masing2 faktor
 unclass(x) # melihat faktor dari masing value
 ```
+
+R will order string alpabhetically if ordered levels not predefined
+defining factors with ordered levels
+
+```{r}
+x <- factor(c('low', 'medium', 'low', 'high', 'low', 'medium'),
+            levels = c('low', 'medium', 'high'))
+table(x)
+unclass(x)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
