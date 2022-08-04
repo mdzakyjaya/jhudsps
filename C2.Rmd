@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Week 1 Data Types - Vector and Lists
+# Week 1 Data Types
 
 ## Matriks
 
@@ -29,7 +29,14 @@ pembuatan matriks bisa juga menggunakan funsi cbind() dan rbinf()
 x <- c(1,3,4)
 y <- c(3,4,1)
 cmatriks <- cbind(x,y) # menyusun berdasarkan kolom
-rmatriks <- rbinf(x,y) # menyusun berdararkan baris
+rmatriks <- rbind(x,y) # menyusun berdararkan baris
+```
+
+penamaan dimensi matriks
+```{r}
+m <- matrix(c(1,2,3,4), nrow = 2, ncol = 2)
+dimnames(m) = list(c('a','b'),c('c','d'))
+m
 ```
 
 ## Factors
@@ -41,7 +48,7 @@ table(x) # membuat tabel berisi frequensi dari masing2 faktor
 unclass(x) # melihat faktor dari masing value
 ```
 
-R will order string alpabhetically if ordered levels not predefined
+R will order string alpabhetically if ordered levels not predefined.\
 defining factors with ordered levels
 
 ```{r}
@@ -51,16 +58,49 @@ table(x)
 unclass(x)
 ```
 
+## Missing Values
 
+there are two types of missing values\
+(-) NA\
+(-) NaN\
 
+NaN should to be NA but not vice versa.
 
+```{r}
+x <- c(1, 2, NaN, 4)
+is.na(x)
+is.nan(x)
+```
 
+reverse couldn't be applied
 
+```{r}
+x <- c(1, 2, NA, 4)
+is.na(x)
+is.nan(x)
+```
 
+## Vextors, Lists, and Data Frames
 
+vector -\> `c()`\
+list -\> `list()`\
+data frame -\> `data.frame()`\
 
+the differences between thoose function
 
+```{r}
+#vector with predifined indices
+vct <- c(a=1, b=2, c=3, d=4)
+vct
 
+#lists with predefined indices and vector within it partially
+lst <- list(a=c(1,4,1), b=2, c=3)
+lst
 
+#data frame with list and vector inside
+dtfrm <- data.frame(a=list(1,2,3), b=c(2,4,5), c=3)
+dtfrm
+```
 
-
+list **could** contain diference number of elements in every index.\
+data frame **could not** contain difference number of elements i.e dimension in every column have to be same.\
