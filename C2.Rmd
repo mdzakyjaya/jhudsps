@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Week 1 Data Types
+# Week 1
 
 ## Matriks
 
@@ -33,6 +33,7 @@ rmatriks <- rbind(x,y) # menyusun berdararkan baris
 ```
 
 penamaan dimensi matriks
+
 ```{r}
 m <- matrix(c(1,2,3,4), nrow = 2, ncol = 2)
 dimnames(m) = list(c('a','b'),c('c','d'))
@@ -104,3 +105,151 @@ dtfrm
 
 list **could** contain diference number of elements in every index.\
 data frame **could not** contain difference number of elements i.e dimension in every column have to be same.\
+
+## dput() and dump()
+
+`dput()` and `dump()` are used to store object
+
+```{r}
+y <- data.frame(a=1, b='a')
+dput(y)
+
+dput(y, file = 'y.R')
+new.y <- dget('y.R') # call dput's file with dget()
+new.y
+```
+
+store multiple object using `dump()`
+
+```{r}
+x <- 'halo'
+y <- data.frame(a= c(3,4), b='yes')
+z <- c(T, F, T)
+
+dump(c('x', 'y', 'z'), file = 'objdump.R') # putting objects in dump()
+
+rm(x, y, z) # removing objects from the environment
+
+# the object can still be called again using source() although it is no longer in the environment
+source('objdump.R') # and now the objects return to the environment
+```
+
+## Subsetting Lists
+
+```{r}
+x <- list(a = list(c(1, 2, 9), 3, 5), b=c(3, 2, 9), c = 'a')
+
+x[c(1, 1)]
+x[[c(1, 1)]]
+
+x[c(1,3)]
+x[[c(1,3)]]
+
+x[[1]][[3]]
+```
+
+## Partial Matching
+
+```{r}
+x <- list(col1 = 1:5, dol1 = c(2, 7, 5), cam = 'd')
+
+x$d # it return an output because index begin with letter 'd' only one
+x$c # it doesn't return an output because index begin with letter 'a' more than one
+
+x[['d', exact = FALSE]]
+x[['a', exact = FALSE]]
+```
+
+## Removing NA values
+
+```{r}
+x <- c(NA, 1, 2, 4, NA, 9)
+nul <- is.na(x)
+
+x_clean <- x[!nul]
+x_clean
+```
+
+in multiple objects
+
+```{r}
+x <- c(1, 5, NA, 4, NA, 9, 3)
+y <- c(1, 5, 4, NA, 9, 3, NA)
+clean <- complete.cases(x, y) #complete_cases() used to pair objects with no missing values in each other
+x[clean]
+y[clean]
+```
+
+`complete.cases()` good to use for data frame
+
+# Week 2
+
+## For Looping
+
+```{r}
+x <- c('a', 'b', 'c')
+
+for (i in 1:3) {
+  print(x[i])
+}
+
+for (i in seq_along(x)) {
+  print(x[i])
+}
+
+for (letter in x) {
+  print(letter)
+}
+
+for (i in 1:3) print(x[i])
+```
+
+nested for loop
+```{r}
+x <- matrix(1:6, 2, 3, byrow = T)
+
+for(i in seq_len(nrow(x))) {
+  for(j in seq_len(ncol(x))) {
+    print(x[i, j])
+  }
+}
+```
+## While Loop
+```{r}
+z <- 10
+
+while(z>=3 & z<=10) {
+  print(z)
+  coin <- rbinom(1, 1, 0.5)
+  
+  if(coin == 1) {
+    z <- z+1
+  } else {
+    z <- z-1
+  }
+}
+```
+
+## Creat Function
+```{r}
+x <- matrix(1:20, 4, 5, byrow = T)
+
+countmean <- function(x, removeNA = T) {
+  nc <- ncol(x)
+  means <- numeric(nc)
+  for(i in 1:nc) {
+    means[i] <- mean(x[, i], na.rm = removeNA)
+  }
+  means
+}
+```
+
+
+
+
+
+
+
+
+
+
