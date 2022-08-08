@@ -3,6 +3,8 @@ title: "JHUDSS C2 R Programming"
 author: "mdzakyjaya"
 date: '2022-08-02'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
