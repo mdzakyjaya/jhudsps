@@ -21,3 +21,50 @@ if (!file.exists('C:/Users/Dtech/Desktop/jhudsps')) {
 }
 ```
 
+
+```{r}
+library(jsonlite)
+data <- fromJSON('https://api.github.com/users/jtleek/repos')
+names(data)
+```
+
+# data.table
+
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv', destfile = 'E:/usc.csv')
+data <- read.csv('E:/usc.csv')
+```
+
+read data into `data.table`
+```{r}
+dt <- data.table(data)
+dt[VAL==24, .N] #count records with VAL = 24
+```
+
+# Week 2
+
+## Reading from MySQL
+
+```{r}
+install.packages("RMySQL")
+library(RMySQL)
+
+database <- dbConnect(MySQL(), user = 'genome',
+                      host = 'genome-mysql.cse.ucsc.edu')
+
+dbGetQuery(database, 'show databases;'); dbDisconnect(database)
+
+dbGetQuery(database, 'use hg19')
+
+length(dbListTables(database)) # count number of tables in corrsepomding database
+
+dbListFields(database, 'HInv') # list attributes in table
+
+hinv <- dbReadTable(database, 'HInv') # copy data frame from database table
+
+dbGetQuery(database, 'select count(*) as records from HInv')
+
+## using sendquery()
+query <- dbSendQuery(database, 'select * from HInv')
+fetch(query, n=10)
+```
