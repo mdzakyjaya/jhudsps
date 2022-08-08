@@ -3,9 +3,21 @@ title: "JHUDSS C3 Getting and Cleaning Data"
 author: "mdzakyjaya"
 date: "2022-08-08"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Week 1
+
+## Checking and Creating Directories
+
+```{r}
+if (!file.exists('C:/Users/Dtech/Desktop/jhudsps')) {
+  dir.create('C:/Users/Dtech/Desktop/jhudsps')
+}
 ```
 
