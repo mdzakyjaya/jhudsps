@@ -1,7 +1,13 @@
 ---
-title: "C2 R Programming"
-output: html_notebook
+title: "JHUDSS C2 R Programming"
+author: "mdzakyjaya"
+date: '2022-08-02'
+output: html_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 # Week 1
 
