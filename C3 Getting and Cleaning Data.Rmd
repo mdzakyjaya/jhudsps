@@ -68,3 +68,209 @@ dbGetQuery(database, 'select count(*) as records from HInv')
 query <- dbSendQuery(database, 'select * from HInv')
 fetch(query, n=10)
 ```
+
+# Week 3
+
+## Subsetting & Sorting
+
+```{r}
+x <- data.frame('var1'=sample(1:5), 'var2'=sample(6:10), 'var3'=sample(11:15))
+x <- x[sample(1:5),] ; x$var2[c(1,3)] = NA
+x
+```
+
+Logical ands and ors
+```{r}
+x[(x$var1 <= 3 & x$var3 >=13),] # subsetting with logical and
+
+x[(x$var1 <=3 | x$var3 < 13),] # subsetting with logical or
+```
+
+Sorting & Ordering
+```{r}
+#sorting for column
+sort(x$var1)
+
+sort(x$var2, decreasing = T, na.last = T)
+
+#sorting for dataframe
+x[order(x$var2, na.last = T, decreasing = T),]
+```
+
+Ordering with `plyr`
+```{r}
+#install.packages('plyr')
+library(plyr)
+
+plyr::arrange(x, x$var1)
+plyr::arrange(x, desc(var3))
+```
+
+Adding Rows and Columns
+```{r}
+x$var4 <- rnorm(5)
+x
+
+# adding by columns
+y <- cbind(x, rnorm(4), byrow = T)
+y
+
+# adding by rows
+z <- rbind(y, rnorm(6))
+z
+```
+
+## Summarizing Data
+
+importing data
+```{r}
+restdata <- read.csv('Restaurants.csv')
+```
+
+quick overview of the data
+```{r}
+head(restdata, 3)
+
+tail(restdata, 3)
+
+summary(restdata)
+
+str(restdata)
+```
+
+checking quantiles of quantitative variables
+```{r}
+quantile(restdata$x_coord)
+
+quantile(restdata$x_coord, probs = c(0.2, 0.6, 1))
+```
+
+make table for factor variables to quick overview the frequencies of each factors.
+```{r}
+table(restdata$zipcode, useNA = 'ifany') # useNA will input NA value if any
+
+table(restdata$zipcode, restdata$loc_type) # count frequencies in 2 dimensional table
+```
+
+Checking for missing values
+```{r}
+sum(is.na(restdata$address)) # sum up missing values
+
+any(is.na(restdata)) # checking if there are any missing values in the data
+
+any(is.na(restdata$name)) # checking if there are any missing values in the specific column
+
+all(restdata$loc_type == 'ST') # checking if all data are meet the specific condition
+
+colSums(is.na(restdata)) # to sum up specific boolean criteria in the data
+
+all(colSums(is.na(restdata)) == 0)
+```
+
+Checking values with specific characteristics
+```{r}
+table(restdata$zipcode %in% c(21201, 21287))
+
+# filtering data like where clause in SQL
+restdata[restdata$zipcode %in% c(21234, 21239), c('name', 'zipcode', 'city', 'state', 'address')]
+
+# it will give error outcome
+restdata[restdata$zipcode %in% c(21234, 21239), c(restdata$name, restdata$zipcode, restdata$city, restdata$state, restdata$address)]
+
+# it's not proper syntax
+restdata['zipcode' %in% c(21234, 21239), c('name', 'zipcode', 'city', 'state', 'address')]
+```
+
+Cross Tabs
+```{r}
+data("UCBAdmissions")
+
+# input as dataframe
+ucbdf <- as.data.frame(UCBAdmissions)
+
+summary(ucbdf)
+
+# make the cross tab
+ct <- xtabs(Freq ~ Admit + Gender, data = ucbdf)
+
+# make the cross tab for all variables
+ctall <- xtabs(Freq ~ ., data = ucbdf)
+```
+
+Making Flat Tables from Cross Tabs
+```{r}
+ftable(ctall)
+```
+
+Checking size of the data set
+```{r}
+object.size(ucbdf)
+
+print(object.size(ucbdf), units = "Kb")
+```
+
+## Creating New Variables
+creating sequences for index for data set
+```{r}
+s1 <- seq(1, 10, by=2)
+
+s2 <- seq(1, 10, length = 3)
+
+v <- c(1, 6, 7, 10, 3)
+s3 <- seq(along = v) # creating indices for vector v
+```
+
+subsetting variables
+```{r}
+restdata$aroundarea <- restdata$zipcode %in% c(21287, 21237, 21234)
+table(restdata$aroundarea)
+```
+
+creating binary variables
+```{r}
+restdata$zcnum <- as.integer(restdata$zipcode)
+restdata$wrongzip <- ifelse(restdata$zcnum<0, T, F)
+table(restdata$wrongzip)
+```
+
+creating categorical variables
+```{r}
+restdata$groupzip <- cut(restdata$zcnum, breaks = quantile(restdata$zcnum, na.rm = T))
+table(restdata$groupzip)
+
+table(restdata$zipcode, restdata$groupzip)
+```
+
+easier cutting to make categorical variables
+```{r}
+# install.packages("Hmisc")
+restdata$zipgroupease <- Hmisc::cut2(restdata$zcnum, g = 4)
+table(restdata$zipgroupease)
+```
+
+creating levels of factor variables
+```{r}
+yesno <- sample(c('yes', 'no'), size = 10, replace = T)
+lefact <- factor(yesno, levels = c('yes', 'no'))
+lefact
+```
+
+create new variables with simultaneously added into new dataframe
+```{r}
+restdata2 <- plyr::mutate(restdata, zipgroup = Hmisc::cut2(zcnum, g = 4))
+table(restdata2$zipgroup, restdata2$zipcode)
+```
+
+## Reshaping Data
+
+
+
+
+
+
+
+
+
+
+
+
