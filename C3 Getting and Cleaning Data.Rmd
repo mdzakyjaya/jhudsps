@@ -21,7 +21,6 @@ if (!file.exists('C:/Users/Dtech/Desktop/jhudsps')) {
 }
 ```
 
-
 ```{r}
 library(jsonlite)
 data <- fromJSON('https://api.github.com/users/jtleek/repos')
@@ -36,6 +35,7 @@ data <- read.csv('E:/usc.csv')
 ```
 
 read data into `data.table`
+
 ```{r}
 dt <- data.table(data)
 dt[VAL==24, .N] #count records with VAL = 24
@@ -80,6 +80,7 @@ x
 ```
 
 Logical ands and ors
+
 ```{r}
 x[(x$var1 <= 3 & x$var3 >=13),] # subsetting with logical and
 
@@ -87,6 +88,7 @@ x[(x$var1 <=3 | x$var3 < 13),] # subsetting with logical or
 ```
 
 Sorting & Ordering
+
 ```{r}
 #sorting for column
 sort(x$var1)
@@ -98,6 +100,7 @@ x[order(x$var2, na.last = T, decreasing = T),]
 ```
 
 Ordering with `plyr`
+
 ```{r}
 #install.packages('plyr')
 library(plyr)
@@ -107,6 +110,7 @@ plyr::arrange(x, desc(var3))
 ```
 
 Adding Rows and Columns
+
 ```{r}
 x$var4 <- rnorm(5)
 x
@@ -123,11 +127,13 @@ z
 ## Summarizing Data
 
 importing data
+
 ```{r}
 restdata <- read.csv('Restaurants.csv')
 ```
 
 quick overview of the data
+
 ```{r}
 head(restdata, 3)
 
@@ -139,6 +145,7 @@ str(restdata)
 ```
 
 checking quantiles of quantitative variables
+
 ```{r}
 quantile(restdata$x_coord)
 
@@ -146,6 +153,7 @@ quantile(restdata$x_coord, probs = c(0.2, 0.6, 1))
 ```
 
 make table for factor variables to quick overview the frequencies of each factors.
+
 ```{r}
 table(restdata$zipcode, useNA = 'ifany') # useNA will input NA value if any
 
@@ -153,6 +161,7 @@ table(restdata$zipcode, restdata$loc_type) # count frequencies in 2 dimensional 
 ```
 
 Checking for missing values
+
 ```{r}
 sum(is.na(restdata$address)) # sum up missing values
 
@@ -168,6 +177,7 @@ all(colSums(is.na(restdata)) == 0)
 ```
 
 Checking values with specific characteristics
+
 ```{r}
 table(restdata$zipcode %in% c(21201, 21287))
 
@@ -182,6 +192,7 @@ restdata['zipcode' %in% c(21234, 21239), c('name', 'zipcode', 'city', 'state', '
 ```
 
 Cross Tabs
+
 ```{r}
 data("UCBAdmissions")
 
@@ -198,11 +209,13 @@ ctall <- xtabs(Freq ~ ., data = ucbdf)
 ```
 
 Making Flat Tables from Cross Tabs
+
 ```{r}
 ftable(ctall)
 ```
 
 Checking size of the data set
+
 ```{r}
 object.size(ucbdf)
 
@@ -210,7 +223,9 @@ print(object.size(ucbdf), units = "Kb")
 ```
 
 ## Creating New Variables
+
 creating sequences for index for data set
+
 ```{r}
 s1 <- seq(1, 10, by=2)
 
@@ -221,12 +236,14 @@ s3 <- seq(along = v) # creating indices for vector v
 ```
 
 subsetting variables
+
 ```{r}
 restdata$aroundarea <- restdata$zipcode %in% c(21287, 21237, 21234)
 table(restdata$aroundarea)
 ```
 
 creating binary variables
+
 ```{r}
 restdata$zcnum <- as.integer(restdata$zipcode)
 restdata$wrongzip <- ifelse(restdata$zcnum<0, T, F)
@@ -234,6 +251,7 @@ table(restdata$wrongzip)
 ```
 
 creating categorical variables
+
 ```{r}
 restdata$groupzip <- cut(restdata$zcnum, breaks = quantile(restdata$zcnum, na.rm = T))
 table(restdata$groupzip)
@@ -242,6 +260,7 @@ table(restdata$zipcode, restdata$groupzip)
 ```
 
 easier cutting to make categorical variables
+
 ```{r}
 # install.packages("Hmisc")
 restdata$zipgroupease <- Hmisc::cut2(restdata$zcnum, g = 4)
@@ -249,6 +268,7 @@ table(restdata$zipgroupease)
 ```
 
 creating levels of factor variables
+
 ```{r}
 yesno <- sample(c('yes', 'no'), size = 10, replace = T)
 lefact <- factor(yesno, levels = c('yes', 'no'))
@@ -256,12 +276,135 @@ lefact
 ```
 
 create new variables with simultaneously added into new dataframe
+
 ```{r}
 restdata2 <- plyr::mutate(restdata, zipgroup = Hmisc::cut2(zcnum, g = 4))
 table(restdata2$zipgroup, restdata2$zipcode)
 ```
 
 ## Reshaping Data
+
+start with reshaping
+
+```{r}
+# install.packages("reshape2")
+# library(reshape2)
+
+data("mtcars")
+
+mtcars$carname <- rownames(mtcars)
+```
+
+melting dataframe
+
+```{r}
+carmelt <- melt(mtcars, id = c('carname', 'gear', 'cyl'), measure.vars = c('mpg', 'hp'))
+
+head(carmelt, 10)
+```
+
+casting data frame
+
+```{r}
+cyldata <- dcast(carmelt, cyl ~ variable, sum)
+```
+
+grouping value with `tapply()`
+
+```{r}
+data("InsectSprays")
+tapply(InsectSprays$count, InsectSprays$spray, mean)
+```
+
+split (grouping without aggregate function)
+
+```{r}
+split(InsectSprays$count, InsectSprays$spray)
+
+split(mtcars$carname, mtcars$cyl)
+```
+
+using `plyr` package
+
+```{r}
+ddply(InsectSprays, 'spray', summarise, jumlah = sum(count))
+```
+
+## Using `dplyr` to Easily Dealing with Data Frame
+
+load data
+```{r}
+library(dplyr)
+chicago <- readRDS('chicago.rds')
+```
+
+select funtion
+```{r}
+# select column
+head(select(chicago, c(city:date)))
+
+# excluding column
+head(select(chicago, -c(city:date)))
+```
+
+filter function
+```{r}
+head(filter(chicago, o3tmean2 > 30 & no2tmean2 < 20))
+```
+
+arrange funtion
+```{r}
+head(arrange(chicago, tmpd))
+
+head(arrange(chicago, desc(date)))
+```
+
+rename funtion
+```{r}
+chicago <- rename(chicago, pm25 = pm25tmean2, dewpoint = dptp, 
+                  pm10 = pm10tmean2, o3 = o3tmean2, no2 = no2tmean2)
+head(chicago)
+```
+
+mutate funtion
+to create new variable
+```{r}
+chicago <- mutate(chicago, diff = no2-o3)
+head(chicago)
+
+chicago <- mutate(chicago, tempcat = factor((tmpd > 35),
+                                            labels = c('cold', 'hot')))
+```
+
+group by funtion
+```{r}
+hotcold <- group_by(chicago, tempcat)
+summarize(hotcold, tmpd = mean(tmpd, na.rm = T))
+```
+```{r}
+chicago <- mutate(chicago, year = as.POSIXlt(date)$year + 1900)
+byyear <- group_by(chicago, year)
+
+summarize(byyear, tmpd = mean(tmpd, na.rm = T))
+```
+
+using pipeline operator
+```{r}
+chicago %>% mutate(month = as.POSIXlt(date)$mon + 1) %>% 
+  group_by(month) %>% summarize(tmpd = mean(tmpd, na.rm = T))
+```
+
+using join in plyr packages
+```{r}
+df1 <- data.frame(id = c(1:10), x = rnorm(10))
+df2 <- data.frame(id = c(1:10), y = rnorm(10))
+
+join(df1, df2)
+
+df3 <- data.frame(id = c(1:10), z = rnorm(10))
+
+join_all(list(df1, df2, df3))
+```
 
 
 
