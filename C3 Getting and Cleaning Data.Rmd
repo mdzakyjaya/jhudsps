@@ -333,12 +333,14 @@ ddply(InsectSprays, 'spray', summarise, jumlah = sum(count))
 ## Using `dplyr` to Easily Dealing with Data Frame
 
 load data
+
 ```{r}
 library(dplyr)
 chicago <- readRDS('chicago.rds')
 ```
 
 select funtion
+
 ```{r}
 # select column
 head(select(chicago, c(city:date)))
@@ -348,11 +350,13 @@ head(select(chicago, -c(city:date)))
 ```
 
 filter function
+
 ```{r}
 head(filter(chicago, o3tmean2 > 30 & no2tmean2 < 20))
 ```
 
 arrange funtion
+
 ```{r}
 head(arrange(chicago, tmpd))
 
@@ -360,14 +364,15 @@ head(arrange(chicago, desc(date)))
 ```
 
 rename funtion
+
 ```{r}
 chicago <- rename(chicago, pm25 = pm25tmean2, dewpoint = dptp, 
                   pm10 = pm10tmean2, o3 = o3tmean2, no2 = no2tmean2)
 head(chicago)
 ```
 
-mutate funtion
-to create new variable
+mutate funtion to create new variable
+
 ```{r}
 chicago <- mutate(chicago, diff = no2-o3)
 head(chicago)
@@ -377,10 +382,12 @@ chicago <- mutate(chicago, tempcat = factor((tmpd > 35),
 ```
 
 group by funtion
+
 ```{r}
 hotcold <- group_by(chicago, tempcat)
 summarize(hotcold, tmpd = mean(tmpd, na.rm = T))
 ```
+
 ```{r}
 chicago <- mutate(chicago, year = as.POSIXlt(date)$year + 1900)
 byyear <- group_by(chicago, year)
@@ -389,12 +396,14 @@ summarize(byyear, tmpd = mean(tmpd, na.rm = T))
 ```
 
 using pipeline operator
+
 ```{r}
 chicago %>% mutate(month = as.POSIXlt(date)$mon + 1) %>% 
   group_by(month) %>% summarize(tmpd = mean(tmpd, na.rm = T))
 ```
 
 using join in plyr packages
+
 ```{r}
 df1 <- data.frame(id = c(1:10), x = rnorm(10))
 df2 <- data.frame(id = c(1:10), y = rnorm(10))
@@ -406,14 +415,90 @@ df3 <- data.frame(id = c(1:10), z = rnorm(10))
 join_all(list(df1, df2, df3))
 ```
 
+# Week 4
 
+## Editing Text Variables
 
+dealing with case
 
+```{r}
+cam <- read.csv('Cameras.csv')
 
+colnames(cam)
 
+toupper(colnames(cam))
+tolower(colnames(cam))
 
+ecam <- cam
+strsplit(colnames(ecam), '_') # split string with _ parameter
+```
 
+replacing string
 
+```{r}
+colnames(cam)
 
+colnames(cam) <- sub('_', ' ', colnames(cam))
 
+colnames(cam) <- gsub('_', ' ', colnames(cam))
+```
 
+finding specific values using `grep()` and `grepl()`
+
+```{r}
+grep('street', tolower(cam$location))
+grep('street', tolower(cam$location), value = T)
+table(grep('street', tolower(cam$location)))
+
+grepl('tr', tolower(cam$location))
+table(grepl('tr', tolower(cam$location)))
+```
+
+creating new table with specific criteria needed
+
+```{r}
+camstr <- cam[grepl('street', tolower(cam$location)), c("location", 
+                                                        "map final",
+                                                        "camtype", "siteno")]
+```
+
+using `stringr` library to deal with string variables
+
+```{r}
+library(stringr)
+
+nchar('hello world')
+substr('hello world', 3, 10)
+paste('hello', 'word') # automatically give space between each words
+paste0('hello', 'world')
+str_trim('hello      ')
+```
+
+## Regular Expression
+
+`^` represents starting in the lines\
+example : `^in the morning`\
+\
+`$` represents ending in the lines\
+example : `morning$`\
+\
+`[]` represent character classes\
+example : `[Bb]`\
+\
+combining regular expression with character classes\
+`^[]` represent starting in the lines with corresponding character classes\
+example : `^[Ii]n the morning` -\> `in the morning` or `In the morning` will fetched\
+example : `^[0-9][a-zA-Z]` -\> will fetch all line starting with number in range 0-9 followed with all letter either case or not. the order doesn't matter.\
+\
+`[^]` it will exclude every line that has values inside that character classes\
+example : `[^?.]$` -\> will take all line with the line's ending not `?` or `.`\
+\
+`.` is used to refer to any character\
+example : `9.11` -> return all lines with `9` followed by one any characters then followed again with `11`.\
+\
+`|` or characters\
+example : `you|me` -> return every single line that contains `you` or `me`\
+\
+combining `|` operator not only for literal but also with regular expressions\
+example: `^[Gg]ood|[Bb]ad` -> return every lines that contains first word is `good` but not guarantee first word is `bad` ; case assensitive in first letter.\
+example: `^([Gg]ood|[Bb]ad)` -> return every lines that contains first word is `good` or first word (guaranteed) is `bad` ; case assensitive in first letter.\
