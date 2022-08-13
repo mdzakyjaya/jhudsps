@@ -64,6 +64,11 @@ with(airquality, {
 mtext('Between Temp, Ozone and Wind', outer = T) #adding overall title
 ```
 
+## copy plot from screen device to file graphics
+```{r}
+dev.copy2pdf()
+dev.copy(jpeg)
+```
 
 
 
